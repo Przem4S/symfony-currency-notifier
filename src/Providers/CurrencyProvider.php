@@ -29,16 +29,17 @@ class CurrencyProvider
      */
     private function saveCurrencyRate(array $rate, \DateTime $updated_at) {
         $currency = $this->em->getRepository(Currency::class)->findCurrencyByISO($rate['code']);
+        $current_value = (isset($rate['mid']) ? $rate['mid'] : $rate['ask']);
 
         if(!$currency) {
             $currency = (new Currency)->setCreatedAt(new \DateTime('now'));
-        } else {
+        } elseif($currency->getCurrent() != $current_value) {
             $currency->setPrevious($currency->getCurrent());
         }
 
         $currency->setIso($rate['code'])
             ->setName($rate['currency'])
-            ->setCurrent((isset($rate['mid']) ? $rate['mid'] : $rate['ask']))
+            ->setCurrent($current_value)
             ->setUpdatedAt($updated_at);
 
         $this->em->persist($currency);

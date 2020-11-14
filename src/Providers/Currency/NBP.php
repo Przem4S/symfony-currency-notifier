@@ -11,6 +11,13 @@ class NBP implements CurrencyProviderInterface
     private $url = "http://api.nbp.pl/api/exchangerates";
     private $tables = ['A', 'B', 'C'];
 
+    /**
+     * Connecting method
+     *
+     * @param $method
+     * @param $table_code_or_date
+     * @return mixed
+     */
     public function request($method, $table_code_or_date) {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, "$this->url/$method/$table_code_or_date?format=json");
@@ -26,7 +33,12 @@ class NBP implements CurrencyProviderInterface
         return (count($data) == 1 ? $data[0] : $data);
     }
 
-    public function getCurrencies() {
+    /**
+     * Get all currencies as array
+     *
+     * @return array
+     */
+    public function getCurrencies(): array {
         $date = null;
         $rates = [];
 
@@ -41,6 +53,12 @@ class NBP implements CurrencyProviderInterface
         return ['date'=>$date, 'rates'=>$rates];
     }
 
+    /**
+     * Find specific currency from all
+     *
+     * @param string $iso
+     * @return array|false
+     */
     public function getCurrency(string $iso) {
         $currencies = $this->getCurrencies();
 

@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class AuthController extends AbstractController
 {
     /**
-     * @Route("/api/auth/token")
+     * @Route("/api/auth/token", name="api_auth_token")
      */
     public function login(UserManagerInterface $userManager, JWTTokenManagerInterface $JWTManager): Response
     {
@@ -20,12 +20,5 @@ class AuthController extends AbstractController
             'username' => 'api',
             'password' => getenv('API_PASSWORD')
         ], 307);
-    }
-
-    /**
-     * @Route("/api/member/register")
-     */
-    public function test() {
-        return new JsonResponse(['dziala'=>true]);
     }
 }

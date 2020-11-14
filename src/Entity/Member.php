@@ -2,15 +2,15 @@
 
 namespace App\Entity;
 
-use App\Repository\CurrencyRepository;
+use App\Repository\MemberRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity(repositoryClass=CurrencyRepository::class)
+ * @ORM\Entity(repositoryClass=MemberRepository::class)
  */
-class Currency
+class Member
 {
     /**
      * @ORM\Id
@@ -22,22 +22,37 @@ class Currency
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $name;
+    private $email;
 
     /**
-     * @ORM\Column(type="string", length=3)
+     * @ORM\Column(type="string", length=100)
      */
-    private $iso;
+    private $firstname;
 
     /**
-     * @ORM\Column(type="float")
+     * @ORM\Column(type="string", length=100)
      */
-    private $current;
+    private $lastname;
 
     /**
-     * @ORM\Column(type="float", nullable=true)
+     * @ORM\Column(type="string", length=9)
      */
-    private $previous;
+    private $phone;
+
+    /**
+     * @ORM\Column(type="date")
+     */
+    private $birthdate;
+
+    /**
+     * @ORM\Column(type="smallint")
+     */
+    private $active;
+
+    /**
+     * @ORM\Column(type="string", length=64)
+     */
+    private $token;
 
     /**
      * @ORM\Column(type="datetime")
@@ -50,7 +65,7 @@ class Currency
     private $updated_at;
 
     /**
-     * @ORM\OneToMany(targetEntity=Subscription::class, mappedBy="currency", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity=Subscription::class, mappedBy="member", orphanRemoval=true)
      */
     private $subscriptions;
 
@@ -64,50 +79,86 @@ class Currency
         return $this->id;
     }
 
-    public function getName(): ?string
+    public function getEmail(): ?string
     {
-        return $this->name;
+        return $this->email;
     }
 
-    public function setName(string $name): self
+    public function setEmail(string $email): self
     {
-        $this->name = $name;
+        $this->email = $email;
 
         return $this;
     }
 
-    public function getIso(): ?string
+    public function getFirstname(): ?string
     {
-        return $this->iso;
+        return $this->firstname;
     }
 
-    public function setIso(string $iso): self
+    public function setFirstname(string $firstname): self
     {
-        $this->iso = $iso;
+        $this->firstname = $firstname;
 
         return $this;
     }
 
-    public function getCurrent(): ?float
+    public function getLastname(): ?string
     {
-        return $this->current;
+        return $this->lastname;
     }
 
-    public function setCurrent(float $current): self
+    public function setLastname(string $lastname): self
     {
-        $this->current = $current;
+        $this->lastname = $lastname;
 
         return $this;
     }
 
-    public function getPrevious(): ?float
+    public function getPhone(): ?string
     {
-        return $this->previous;
+        return $this->phone;
     }
 
-    public function setPrevious(?float $previous): self
+    public function setPhone(string $phone): self
     {
-        $this->previous = $previous;
+        $this->phone = $phone;
+
+        return $this;
+    }
+
+    public function getBirthdate(): ?\DateTimeInterface
+    {
+        return $this->birthdate;
+    }
+
+    public function setBirthdate(\DateTimeInterface $birthdate): self
+    {
+        $this->birthdate = $birthdate;
+
+        return $this;
+    }
+
+    public function getActive(): ?int
+    {
+        return $this->active;
+    }
+
+    public function setActive(int $active): self
+    {
+        $this->active = $active;
+
+        return $this;
+    }
+
+    public function getToken(): ?string
+    {
+        return $this->token;
+    }
+
+    public function setToken(string $token): self
+    {
+        $this->token = $token;
 
         return $this;
     }
@@ -148,7 +199,7 @@ class Currency
     {
         if (!$this->subscriptions->contains($subscription)) {
             $this->subscriptions[] = $subscription;
-            $subscription->setCurrency($this);
+            $subscription->setMember($this);
         }
 
         return $this;
@@ -158,8 +209,8 @@ class Currency
     {
         if ($this->subscriptions->removeElement($subscription)) {
             // set the owning side to null (unless already changed)
-            if ($subscription->getCurrency() === $this) {
-                $subscription->setCurrency(null);
+            if ($subscription->getMember() === $this) {
+                $subscription->setMember(null);
             }
         }
 
