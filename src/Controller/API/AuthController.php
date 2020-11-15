@@ -17,24 +17,17 @@ class AuthController extends APIController
     /**
      * @Route("/api/auth/token")
      */
-    public function login(UserManagerInterface $userManager, JWTTokenManagerInterface $JWTManager, ValidatorInterface $validator): Response
+    public function login(UserManagerInterface $userManager, JWTTokenManagerInterface $JWTManager): Response
     {
         $constraints = new Assert\Collection([
             'username' => new Assert\NotBlank,
             'password' => new Assert\notBlank,
         ]);
 
-        $violations = $validator->validate($this->data, $constraints);
+        $validate = $this->validateInputContent($constraints);
 
-        if (count($violations) > 0) {
-            $accessor = PropertyAccess::createPropertyAccessor();
-            $errorMessages = [];
-
-            foreach ($violations as $violation) {
-                $accessor->setValue($errorMessages, $violation->getPropertyPath(), $violation->getMessage());
-            }
-
-            return new JsonResponse(['success' => false, 'errors' => $errorMessages], 400);
+        if($validate instanceof Response) {
+            return $validate;
         }
 
         return $this->redirectToRoute('api_auth_login', [

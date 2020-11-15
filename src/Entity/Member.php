@@ -5,12 +5,17 @@ namespace App\Entity;
 use App\Repository\MemberRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Validator\Constraints as Assert;
+use App\Validator\Birthdate;
+use App\Validator\Phone;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=MemberRepository::class)
+ * @UniqueEntity("email")
  */
-class Member
+class Member extends BaseEntity
 {
     /**
      * @ORM\Id
@@ -20,49 +25,48 @@ class Member
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
+     * @Assert\NotBlank
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=100)
+     * @Assert\NotBlank
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=100)
+     * @Assert\NotBlank
      */
     private $lastname;
 
     /**
      * @ORM\Column(type="string", length=9)
+     * @Assert\NotBlank
+     * @Phone()
      */
     private $phone;
 
     /**
      * @ORM\Column(type="date")
+     * @Assert\NotBlank
+     * @Birthdate()
      */
     private $birthdate;
 
     /**
      * @ORM\Column(type="smallint")
+     * @Assert\NotBlank
      */
-    private $active;
+    private $active = 0;
 
     /**
      * @ORM\Column(type="string", length=64)
+     * @Assert\NotBlank
      */
     private $token;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
-    private $created_at;
-
-    /**
-     * @ORM\Column(type="datetime", nullable=true)
-     */
-    private $updated_at;
 
     /**
      * @ORM\OneToMany(targetEntity=Subscription::class, mappedBy="member", orphanRemoval=true)
@@ -72,6 +76,7 @@ class Member
     public function __construct()
     {
         $this->subscriptions = new ArrayCollection();
+        $this->token = sha1(random_bytes(10).microtime(true));
     }
 
     public function getId(): ?int
@@ -87,7 +92,6 @@ class Member
     public function setEmail(string $email): self
     {
         $this->email = $email;
-
         return $this;
     }
 
@@ -132,7 +136,7 @@ class Member
         return $this->birthdate;
     }
 
-    public function setBirthdate(\DateTimeInterface $birthdate): self
+    public function setBirthdate(string $birthdate): self
     {
         $this->birthdate = $birthdate;
 
@@ -159,30 +163,6 @@ class Member
     public function setToken(string $token): self
     {
         $this->token = $token;
-
-        return $this;
-    }
-
-    public function getCreatedAt(): ?\DateTimeInterface
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt(\DateTimeInterface $created_at): self
-    {
-        $this->created_at = $created_at;
-
-        return $this;
-    }
-
-    public function getUpdatedAt(): ?\DateTimeInterface
-    {
-        return $this->updated_at;
-    }
-
-    public function setUpdatedAt(?\DateTimeInterface $updated_at): self
-    {
-        $this->updated_at = $updated_at;
 
         return $this;
     }

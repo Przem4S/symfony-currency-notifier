@@ -16,14 +16,16 @@ class MemberController extends APIController
      */
     public function register(Request $request, ValidatorInterface $validator): JsonResponse
     {
-        dd($this->data);
-        exit;
-        $member = new Member;
-        $errors = $validator->validate($member);
+        $member = (new Member)->setEmail($this->getInputParameter('email'))
+            ->setFirstname($this->getInputParameter('firstname'))
+            ->setLastname($this->getInputParameter('lastname'))
+            ->setPhone($this->getInputParameter('phone'))
+            ->setBirthdate($this->getInputParameter('birthdate'));
 
-        if (count($errors) > 0) {
-            $errorsString = (string) $errors;
-            return new Response($errorsString);
+        $validate = $this->validateEntity($member);
+
+        if($validate instanceof JsonResponse) {
+            return $validate;
         }
 
         return new JsonResponse(['success' => true]);
