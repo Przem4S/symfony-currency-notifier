@@ -38,7 +38,11 @@ class APIController extends AbstractController
         $errorMessages = [];
 
         foreach ($violations as $violation) {
-            $accessor->setValue($errorMessages, "[".$violation->getPropertyPath()."]", $violation->getMessage());
+            $property = $violation->getPropertyPath();
+            if($property[0] != "[" && $property[mb_strlen($property)-1] != "]") {
+                $property = "[$property]";
+            }
+            $accessor->setValue($errorMessages, $property, $violation->getMessage());
         }
 
         return new JsonResponse(['success' => false, 'errors' => $errorMessages], 400);

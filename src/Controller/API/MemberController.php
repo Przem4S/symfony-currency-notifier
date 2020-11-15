@@ -19,11 +19,12 @@ class MemberController extends APIController
      */
     public function register(Request $request, ValidatorInterface $validator, CurrencyRepository $currencyRepository, EntityManagerInterface $em): JsonResponse
     {
+        $birthdate = \DateTime::createFromFormat('Y-m-d', $this->getInputParameter('birthdate'));
         $member = (new Member)->setEmail($this->getInputParameter('email'))
             ->setFirstname($this->getInputParameter('firstname'))
             ->setLastname($this->getInputParameter('lastname'))
             ->setPhone($this->getInputParameter('phone'))
-            ->setBirthdate(\DateTime::createFromFormat('Y-m-d', $this->getInputParameter('birthdate')));
+            ->setBirthdate(($birthdate ? $birthdate : null));
 
         $validate = $this->validateEntity($member);
 
@@ -31,21 +32,20 @@ class MemberController extends APIController
             return $validate;
         }
 
-        $em->persist($member);
-        $em->flush();
-
         $currencies = $this->getInputParameter('currencies') ?? [];
         $num_of_subscriptions = 0;
+        $subscriptions = [];
 
         foreach($currencies as $iso => $values) {
+            $iso = strtoupper($iso);
             $currency = $currencyRepository->findCurrencyByISO($iso);
 
             if(!$currency) {
-                return new JsonResponse(['success' => false, 'errors' => ['currencies' => ["Currency $iso not found."]]]);
+                return new JsonResponse(['success' => false, 'errors' => ['currencies' => ["Currency $iso not found."]]], 400);
             }
 
             if($values['min'] >= $values['max']) {
-                return new JsonResponse(['success' => false, 'errors' => ['currencies' => ["Currency maximal notify value have to be higher than minimal."]]]);
+                return new JsonResponse(['success' => false, 'errors' => ['currencies' => ["Currency maximal notify value have to be higher than minimal for currency $iso."]]], 400);
             }
 
             $subscription = (new Subscription())->setCurrency($currency)
@@ -53,22 +53,23 @@ class MemberController extends APIController
                 ->setMin($values['min'])
                 ->setMax($values['max']);
 
+            $subscriptions[] = $subscription;
+        }
+
+        $em->persist($member);
+        $em->flush();
+
+        foreach($subscriptions as $subscription) {
             $em->persist($subscription);
             $em->flush();
-
             $num_of_subscriptions++;
         }
 
+        if($num_of_subscriptions > 0) {
 
-        return new JsonResponse(['success' => true, 'message' => "Member {$member->getEmail()} subscription saved - confirm email.".($num_of_subscriptions > 0 ? " Subscribed $num_of_subscriptions currencies." : "")]);
-    }
+        }
 
-    /**
-     * @Route("/api/member/subscribe")
-     */
-    public function subscribe(): JsonResponse
-    {
-        return new JsonResponse(['success' => true]);
+        return new JsonResponse(['success' => true, 'message' => "Member {$member->getEmail()} for subscription saved - confirm email.".($num_of_subscriptions > 0 ? " Subscribed $num_of_subscriptions currencies." : "")]);
     }
 
     /**

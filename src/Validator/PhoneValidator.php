@@ -18,7 +18,7 @@ class PhoneValidator extends ConstraintValidator
                 ->addViolation();
         }
 
-        if($value[0] == '0') {
+        if($value != '' && $value[0] == '0') {
             $this->context->buildViolation($constraint->startsFromZero)
                 ->addViolation();
         }

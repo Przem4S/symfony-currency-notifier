@@ -15,23 +15,23 @@ class BirthdateValidator extends ConstraintValidator
             $this->context->buildViolation($constraint->invalidDateFormat)
                 ->setParameter('{{string}}', (string)$value)
                 ->addViolation();
-        }
+        } else {
+            $current = new \DateTime('now');
 
-        $current = new \DateTime('now');
+            $diff = $current->diff($value);
 
-        $diff = $current->diff($value);
+            if($diff->y < $this->requiredAge) {
+                $this->context->buildViolation($constraint->restrictMinimalAge)
+                    ->setParameter('{{age}}', $diff->y)
+                    ->setParameter('{{required}}', $this->requiredAge)
+                    ->addViolation();
+            }
 
-        if($diff->y < $this->requiredAge) {
-            $this->context->buildViolation($constraint->restrictMinimalAge)
-                ->setParameter('{{age}}', $diff->y)
-                ->setParameter('{{required}}', $this->requiredAge)
-                ->addViolation();
-        }
-
-        if($diff->y > 100) {
-            $this->context->buildViolation($constraint->oldManCongrats)
-                ->setParameter('{{age}}', $diff->y)
-                ->addViolation();
+            if($diff->y > 100) {
+                $this->context->buildViolation($constraint->oldManCongrats)
+                    ->setParameter('{{age}}', $diff->y)
+                    ->addViolation();
+            }
         }
     }
 }
