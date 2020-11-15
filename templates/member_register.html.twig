@@ -1,0 +1,11 @@
+<p>Hello!</p>
+<p>Email {{ email}} was fill for currency notify subscription.</p>
+<p>Confirm that by click: <a href="{{ link }}">this link</a></p>
+{% if subscriptions|length > 0 %}
+    <p>You subscribe these currencies:</p>
+    <ul>
+        {% for subscription in subscriptions %}
+            <li>{{ subscription.currency.getIso }} - minimal value: {{ subscription.min }} maximal value: {{ subscription.max }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}

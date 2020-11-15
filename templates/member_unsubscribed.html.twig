@@ -1,0 +1,11 @@
+<p>Hello!</p>
+<p>You successful cancel your subscriptions.</p>
+{% if subscriptions|length > 0 %}
+    <p>Unsubscribed currencies:</p>
+    <ul>
+        {% for subscription in subscriptions %}
+            <li>{{ subscription.currency.getIso }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+<p>If you wanna back, <a href="{{ link }}">click this</a></p>

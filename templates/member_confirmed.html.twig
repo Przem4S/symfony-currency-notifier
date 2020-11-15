@@ -1,0 +1,11 @@
+<p>Hello!</p>
+<p>You successful confirmed your subscriptions.</p>
+<p>If you want cancel your subscription completly: <a href="{{ link }}">click this link</a></p>
+{% if subscriptions|length > 0 %}
+    <p>You subscribe these currencies:</p>
+    <ul>
+        {% for subscription in subscriptions %}
+            <li>{{ subscription.currency.getIso }} - minimal value: {{ subscription.min }} maximal value: {{ subscription.max }} <a href="{{ link }}/{{ subscription.id }}">Unsubscribe only this one</a></li>
+        {% endfor %}
+    </ul>
+{% endif %}
