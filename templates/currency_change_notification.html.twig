@@ -1,0 +1,6 @@
+<p>Hello!</p>
+<p>We inform you about change in currency {{ subscription.currency.getIso }}</p>
+<p>Current value is: {{ subscription.currency.getCurrent }}, previous: {{ subscription.currency.getPrevious }}</p>
+<p>You are notify when current value is lower than {{ subscription.getMin }} or higher than {{ subscription.getMax}} </p>
+<p>To unsubscribe only this currency notifications: <a href="{{ link }}/{{ subscription.getId }}">click there</a></p>
+<p>To unsubscribe all notifications: <a href="{{ link }}">click there</a></p>

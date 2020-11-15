@@ -6,6 +6,7 @@ use App\Entity\Member;
 use App\Entity\Subscription;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use \App\Entity\Currency;
 
 /**
  * @method Subscription|null find($id, $lockMode = null, $lockVersion = null)
@@ -44,6 +45,18 @@ class SubscriptionRepository extends ServiceEntityRepository
             ->andWhere('s.active = :active')
             ->setParameter('val', $member)
             ->setParameter('active', ($active ? 1 : 0))
+            ->orderBy('s.id', 'ASC')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+    public function getSubscriptionsToNotify() {
+        return $this->createQueryBuilder('s')
+            ->join(Currency::class, 'c', 'c.currency = s.currency')
+            ->andWhere('s.active = :active')
+            ->andWhere('(c.current < s.min OR c.current > s.max)')
+            ->setParameter('active', 1)
             ->orderBy('s.id', 'ASC')
             ->getQuery()
             ->getResult()
