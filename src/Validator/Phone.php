@@ -6,6 +6,7 @@ use Symfony\Component\Validator\Constraint;
 
 /**
  * @Annotation
+ * Validate phone number length and starting number
  */
 class Phone extends Constraint
 {

@@ -54,7 +54,7 @@ class APIController extends AbstractController
         return true;
     }
 
-    public function validateEntity(BaseEntity $entity) {
+    public function validateEntity($entity) {
         $violations = $this->validator->validate($entity);
 
         if (count($violations) > 0) {

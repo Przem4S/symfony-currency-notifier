@@ -11,9 +11,7 @@ class BirthdateValidator extends ConstraintValidator
 
     public function validate($value, Constraint $constraint)
     {
-        $datetime = \DateTime::createFromFormat('Y-m-d', $value);
-
-        if(!$datetime) {
+        if(!$value) {
             $this->context->buildViolation($constraint->invalidDateFormat)
                 ->setParameter('{{string}}', (string)$value)
                 ->addViolation();
@@ -21,7 +19,7 @@ class BirthdateValidator extends ConstraintValidator
 
         $current = new \DateTime('now');
 
-        $diff = $current->diff($datetime);
+        $diff = $current->diff($value);
 
         if($diff->y < $this->requiredAge) {
             $this->context->buildViolation($constraint->restrictMinimalAge)

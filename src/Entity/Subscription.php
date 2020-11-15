@@ -3,10 +3,12 @@
 namespace App\Entity;
 
 use App\Repository\SubscriptionRepository;
+use App\Validator\SubscriptionValue;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass=SubscriptionRepository::class)
+ * @ORM\HasLifecycleCallbacks
  */
 class Subscription
 {
@@ -32,7 +34,19 @@ class Subscription
     /**
      * @ORM\Column(type="smallint")
      */
-    private $active;
+    private $active = 0;
+
+    /**
+     * @ORM\Column(type="float")
+     * @SubscriptionValue()
+     */
+    private $min;
+
+    /**
+     * @ORM\Column(type="float")
+     * @SubscriptionValue()
+     */
+    private $max;
 
     /**
      * @ORM\Column(type="datetime")
@@ -85,6 +99,30 @@ class Subscription
         return $this;
     }
 
+    public function getMin(): ?float
+    {
+        return $this->min;
+    }
+
+    public function setMin(float $min): self
+    {
+        $this->min = $min;
+
+        return $this;
+    }
+
+    public function getMax(): ?float
+    {
+        return $this->max;
+    }
+
+    public function setMax(float $max): self
+    {
+        $this->max = $max;
+
+        return $this;
+    }
+
     public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->created_at;
@@ -107,5 +145,22 @@ class Subscription
         $this->updated_at = $updated_at;
 
         return $this;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function onAdd()
+    {
+        $this->setCreatedAt(new \DateTime('now'));
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function onUpdate()
+    {
+        $this->setUpdatedAt(new \DateTime('now'));
     }
 }

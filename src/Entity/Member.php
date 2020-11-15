@@ -14,8 +14,9 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ORM\Entity(repositoryClass=MemberRepository::class)
  * @UniqueEntity("email")
+ * @ORM\HasLifecycleCallbacks
  */
-class Member extends BaseEntity
+class Member
 {
     /**
      * @ORM\Id
@@ -72,6 +73,16 @@ class Member extends BaseEntity
      * @ORM\OneToMany(targetEntity=Subscription::class, mappedBy="member", orphanRemoval=true)
      */
     private $subscriptions;
+
+    /**
+     * @ORM\Column(type="datetime")
+     */
+    private $created_at;
+
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $updated_at;
 
     public function __construct()
     {
@@ -136,7 +147,7 @@ class Member extends BaseEntity
         return $this->birthdate;
     }
 
-    public function setBirthdate(string $birthdate): self
+    public function setBirthdate(\DateTime $birthdate): self
     {
         $this->birthdate = $birthdate;
 
@@ -195,5 +206,46 @@ class Member extends BaseEntity
         }
 
         return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTime
+    {
+        return $this->created_at;
+    }
+
+    public function setCreatedAt(\DateTime $created_at): self
+    {
+        $this->created_at = $created_at;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updated_at;
+    }
+
+    public function setUpdatedAt(\DateTime $updated_at): self
+    {
+        $this->updated_at = $updated_at;
+
+        return $this;
+    }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function onAdd()
+    {
+        $this->setCreatedAt(new \DateTime('now'));
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function onUpdate()
+    {
+        $this->setUpdatedAt(new \DateTime('now'));
     }
 }
